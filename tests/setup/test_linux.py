@@ -197,6 +197,16 @@ def test_install_cmd_writes_both_files_unloads_module_and_grants_node():
     assert "(chgrp sudo /dev/bus/usb/003/053 || true) && (chmod 0660 /dev/bus/usb/003/053 || true)" in cmd
 
 
+def test_install_cmd_unloads_each_module_in_its_own_invocation():
+    # `modprobe -r a b c` aborts at the first "is in use" and skips the rest, so a dependency
+    # listed before its dependent (rtw89_8852c before rtw89_8852cu) leaves the card bound and
+    # warm. Each module gets its own best-effort call, so one refusal cannot skip the rest.
+    cmd = lin._install_cmd(tmp_rule=None, key="rtl8852cu", tmp_blacklist="/t/b.conf",
+                           modules=["rtw89_8852c", "rtw89_8852cu"], group=None, node=None)
+    assert ("(modprobe -r rtw89_8852c 2>/dev/null || true) && "
+            "(modprobe -r rtw89_8852cu 2>/dev/null || true)") in cmd
+
+
 def test_install_cmd_root_skips_udev_rule_and_chgrp():
     # group=None (root): no access rule, no chgrp, only the blacklist matters to root.
     cmd = lin._install_cmd(tmp_rule=None, key="ar9271", tmp_blacklist="/t/b.conf",

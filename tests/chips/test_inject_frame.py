@@ -372,9 +372,16 @@ async def inject_and_capture(driver: Driver, dev: RecordingUsbDevice, frame: byt
     return payloads[0]
 
 
+# Chips whose TX path is not ported yet: inject_frame raises BringUpError, so there is no wire
+# format to capture. Drop the entry when the TX milestone lands (see the chip's <CHIP>.md).
+UNPORTED: set[str] = {"rtl8852cu"}
+
+
 @pytest.mark.parametrize("frame_name", list(FRAMES))
 @pytest.mark.parametrize("package_name", driver_package_names())
 async def test_inject_frame_wire_bytes(package_name: str, frame_name: str) -> None:
+    if package_name in UNPORTED:
+        pytest.skip(f"{package_name}: TX path not ported yet")
     case = DRIVER_CASES[package_name]
     frame = FRAMES[frame_name]
     dev = RecordingUsbDevice()

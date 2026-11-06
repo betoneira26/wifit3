@@ -234,11 +234,13 @@ def _install_cmd(*, tmp_rule: str | None, key: str, tmp_blacklist: str | None,
         steps.append(f"install -m 0644 {q(tmp_blacklist)} {q(blacklist_path(key))}")
     steps.append("udevadm control --reload-rules")
     if modules:
-        # Best-effort: frees the warm card now and stops an already-resident module re-grabbing the
-        # device on replug. Fails harmlessly if another card holds the module. The blacklist still
-        # keeps it from *loading* on a future cold boot.
-        mods = " ".join(q(m) for m in modules)
-        steps.append(f"(modprobe -r {mods} 2>/dev/null || true)")
+        # Best-effort, one invocation per module: `modprobe -r a b c` stops at the first refusal
+        # and skips the rest, which is what a sorted list does when a dependency precedes its
+        # dependent (rtw89_8852c before rtw89_8852cu: "Module rtw89_8852c is in use"), leaving the
+        # card bound and warm. Removing the leaf alone cascades to its now-unused dependencies, so
+        # per-module unloads free the card whatever order discovery happened to return.
+        for m in modules:
+            steps.append(f"(modprobe -r {q(m)} 2>/dev/null || true)")
     if group and node:
         # Ignore failures in the ch* commands in case the device re-enumerated to a different node.
         steps += [f"(chgrp {q(group)} {q(node)} || true)", f"(chmod 0660 {q(node)} || true)"]
