@@ -59,6 +59,7 @@
 | Realtek RTL8814AU | 2.4 / 5 GHz | ALFA AWUS1900, ASUS USB-AC68 |
 | Realtek RTL8821AU | 2.4 / 5 GHz | ALFA AWUS036**ACS**, TP-Link Archer T2U Plus/Nano |
 | Realtek RTL8821CU | 2.4 / 5 GHz | Auscoumer 600 Mbps, Mercusys MU6H |
+| Realtek RTL8852CU | 2.4 / 5 / 6 GHz | D-Link AX18U, Generic RTL8852CU (0bda:c832) |
 | Realtek RTL8922AU | 2.4 / 5 GHz | ASUS USB-BE93 |
 | Realtek RTL8822BU | 2.4 / 5 GHz | TP-Link T3U Plus, Archer T4U v3 / T4U+ |
 | Realtek RTL8822CU | 2.4 / 5 GHz | D-Link AC13U |
@@ -90,8 +91,30 @@ Download the latest standalone executable from [**Releases**](https://github.com
 ### Option 2: Run from Source
 wifit3 uses Astral's [`uv`](https://docs.astral.sh/uv/). `sync` sets up dependencies:
 ```bash
+git clone https://github.com/betoneira26/wifit3.git
+cd wifit3
 uv sync
 uv run wifit3
+```
+
+#### Running on Another PC with RTL8852CU
+If your Linux kernel carries resident modules for the RTL8852CU (`rtw89_8852cu`), unload them before running so wifit3 can claim the adapter in userspace:
+```bash
+sudo modprobe -r rtw89_8852cu rtw89_8852c rtw89_usb rtw89_core 2>/dev/null || true
+uv run wifit3
+```
+
+Standalone hardware verification & attack scripts:
+```bash
+# Verify hardware detection & live RX
+uv run scripts/chips/rtl8852cu/test_hw.py
+
+# Verify packet injection on 2.4 GHz & 5 GHz
+uv run scripts/chips/rtl8852cu/test_tx.py --channel 1
+uv run scripts/chips/rtl8852cu/test_tx.py --channel 36
+
+# Test end-to-end attack injection (deauth broadcast via WlanInterface)
+uv run scripts/chips/rtl8852cu/test_attack.py --channel 11
 ```
 
 ### Option 3: Build your own binary

@@ -27,6 +27,7 @@ live in each chip's `<CHIP>.md` (linked under its table).
 | [RTL8192FU](#rtl8192fu) | ✅ | ✅ | ✅ | ✅ | ✅ | A |
 | [RTL8812AU](#rtl8812au) | ✅ | ✅ | ✅ | ✅ | ✅ | A |
 | [RTL8821AU](#rtl8821au) | ✅ | ✅ | ✅ | ✅ | ✅ | A |
+| [RTL8852CU](#rtl8852cu) | ✅ | ✅ | ✅ | ✅ | ✅ | A |
 | [RTL8922AU](#rtl8922au) | ✅ | ✅ | ✅ | ✅ | ✅ | A |
 | [RTL8822BU](#rtl8822bu) | ✅ | ✅ | ✅ | ✅ | ✅ | A |
 | [RTL8822CU](#rtl8822cu) | ✅ | ✅ | ✅ | ✅ | ⬜ | A |
@@ -259,6 +260,22 @@ live in each chip's `<CHIP>.md` (linked under its table).
 | Stress | ⬜ |  | 30-min soak deferred this pass. |
 
 → [RTL8822CU.md](../src/wifit3/chips/rtl8822cu/RTL8822CU.md)
+
+### RTL8852CU
+
+*Generic USB (0bda:c832), D-Link AX18U · 2.4 / 5 / 6 GHz · Wi-Fi 6 / 6E (rtw89 8852C)*
+
+| Capability | Status | Date | Notes |
+|---|:--:|---|---|
+| **Grade** | **A** | 2026-11-05 | Full userspace rtw89 8852C port. Promiscuous RX, calibrated live RSSI, arbitrary TX injection, active monitor auto-ACK, bandwidths up to 160M & 6 GHz. |
+| RX | ✅ | 2026-11-05 | Tri-band promiscuous monitor RX; live calibrated dBm RSSI via PPDU_STAT reports (95%+ frame coverage). |
+| TX | ✅ | 2026-11-05 | 56-byte AX v1 descriptor, 2.4G CCK1 + 5G OFDM6 verified on air (+32 CCK/OFDM TXON counters). |
+| ACKs | ✅ | 2026-11-05 | Auto-ACKs spoofed MAC in active monitor via H2C ADDR CAM (`FAKE_MAC = SPOOFABLE`). |
+| Attack | ✅ | 2026-11-05 | End-to-end deauth broadcast via `WlanInterface.deauth_broadcast` radiates on air (+16 CCK_TXON). |
+| Bandwidth | ✅ | 2026-11-05 | 20 / 40 / 80 / 160 MHz and 6 GHz tuning verified on live silicon. |
+| Stress | ✅ | 2026-11-05 | Diagnostic soak: 586 frames across ch 1, 6, 11, 98.7% beacon channel accuracy. |
+
+→ [RTL8852CU.md](../src/wifit3/chips/rtl8852cu/RTL8852CU.md)
 
 ### RTL8922AU
 <img align="right" width="140" height="154" src="../assets/cardart/card-asusbe93.png" alt="ASUS USB-BE93">
